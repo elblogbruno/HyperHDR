@@ -35,6 +35,7 @@ public:
 	const QMap<QString, QString>& getHeaders();
 	void setFragment(const QString& fragment);
 	void setQuery(const QUrlQuery& query);
+	void setHttps(bool enable);
 
 	httpResponse get();
 	httpResponse put(const QString& body = "");

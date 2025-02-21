@@ -39,6 +39,7 @@ bool DriverNetHomeAssistant::init(const QJsonObject& deviceConfig)
 		QUrl url(urlStr);
 		_restApi = std::make_unique<ProviderRestApi>(url.host(), url.port(8123));        
 		_restApi->addHeader("Authorization", QString("Bearer %1").arg(_haInstance.longLivedAccessToken));
+		_restApi->setHttps(url.scheme().toLower() == "https");
 		
 		Debug(_log, "HomeAssistantHost     : %s", QSTRING_CSTR(_haInstance.homeAssistantHost));
 		Debug(_log, "RestoreOriginalState  : %s", (_haInstance.restoreOriginalState) ? "yes" : "no");

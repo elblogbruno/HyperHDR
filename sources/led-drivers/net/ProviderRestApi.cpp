@@ -212,6 +212,14 @@ void ProviderRestApi::releaseResultLock()
 	_resultLocker.unlock();
 }
 
+void ProviderRestApi::setHttps(bool enable)
+{
+	_scheme = enable ? "https" : "http";
+	_apiUrl.setScheme(_scheme);
+	
+	Debug(_log, "URL scheme changed to: %s", QSTRING_CSTR(_scheme));
+}
+
 std::shared_ptr<QThread> NetworkHelper::threadFactory()
 {
 	static QMutex locker;
