@@ -257,6 +257,20 @@ void NetworkHelper::executeOperation(ProviderRestApi* parent, QNetworkAccessMana
 {
 	QNetworkRequest request(url);
 
+	// Configure timeouts
+	request.setTransferTimeout(TIMEOUT);
+	request.setAttribute(QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::NoLessSafeRedirectPolicy);
+
+	// Configure SSL only if HTTPS
+	if (url.scheme().toLower() == "https") {
+		QSslConfiguration sslConfig = QSslConfiguration::defaultConfiguration();
+		sslConfig.setPeerVerifyMode(QSslSocket::VerifyNone);
+		sslConfig.setProtocol(QSsl::TlsV1_2);
+		request.setSslConfiguration(sslConfig);
+
+		Debug(Logger::getInstance("LEDDEVICE"), "Using SSL configuration for: %s", QSTRING_CSTR(url.toString()));
+	}
+
 	QMapIterator<QString, QString> i = parent->getHeaders();
 	while (i.hasNext())
 	{
@@ -266,9 +280,13 @@ void NetworkHelper::executeOperation(ProviderRestApi* parent, QNetworkAccessMana
 
 	_networkManager = new QNetworkAccessManager();
 
-	connect(_networkManager, &QNetworkAccessManager::sslErrors, this, [](QNetworkReply* reply, const QList<QSslError>& errors) {
-		reply->ignoreSslErrors(errors);
-	});
+	//  Configure SSL errors handling if HTTPS
+	if (url.scheme().toLower() == "https") {
+		connect(_networkManager, &QNetworkAccessManager::sslErrors, this, [](QNetworkReply* reply, const QList<QSslError>& errors) {
+			reply->ignoreSslErrors();
+			Debug(Logger::getInstance("LEDDEVICE"), "SSL errors ignored: %d", errors.length());
+		});
+	}
 
 	_networkReply = (op == QNetworkAccessManager::PutOperation) ? _networkManager->put(request, body.toUtf8()) :
 		(op == QNetworkAccessManager::PostOperation) ? _networkManager->post(request, body.toUtf8()) : _networkManager->get(request);
