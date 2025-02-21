@@ -31,7 +31,7 @@ bool DriverNetHomeAssistant::init(const QJsonObject& deviceConfig)
 		_haInstance.restoreOriginalState = deviceConfig["restoreOriginalState"].toBool(false);
 		_maxRetry = deviceConfig["maxRetry"].toInt(60);
 
-		QString urlStr = _haInstance.homeAssistantHost;
+		QString urlStr = _haInstance.homeAssistantHost; // this is the url of the home assistant instance it might contain http:// or https://
 		if (!urlStr.contains("://"))
 		{
 			urlStr = "http://" + urlStr;
